@@ -21,8 +21,9 @@ public class SolvingODEHandler {
     public SolvingODEHandler() {
     }
 
+
     public String getSolvingByMethod(BigDecimal leftBorderX, BigDecimal yInLeftBorder, BigDecimal rightBorderX, BigDecimal step, BigDecimal inaccuracy, int method) {
-        String res="";
+        String res = "";
         HashMap<String, BigDecimal> argsMap = new HashMap<>();
         argsMap.put(diffEquation.name(), BigDecimal.valueOf(equation));
         argsMap.put(Config.leftBorderX.name(), leftBorderX);
@@ -33,8 +34,8 @@ public class SolvingODEHandler {
 
         methodsManager.setDiffEquation(equation);
         methodsManager.setEquation(equation);
-
-        res+=methodsManager.methodsMap.get(method).apply(argsMap)+"\n";
+        methodsManager.setArgs(argsMap);
+        res += methodsManager.methodsMap.get(method) + "\n";
 
         return res;
     }

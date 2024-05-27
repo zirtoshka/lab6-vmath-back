@@ -8,63 +8,71 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static zir.lab6vmathback.utils.Config.*;
 
 public class MethodsManager {
 
-    public Map<Integer, Function<HashMap<String, BigDecimal>, String>> methodsMap = new HashMap<>();
+    public Map<Integer, Function<Void,String>> methodsMap = new HashMap<>();
     private final DifferentialEquationsManger differentialEquationsManger = new DifferentialEquationsManger();
     private Function<BigDecimal[], BigDecimal> diffEquation;
     private Function<BigDecimal[], BigDecimal> equation;
+    private Function<BigDecimal[], BigDecimal> getConstant;
+
+    private BigDecimal yInLeftBorder;
+    private BigDecimal leftBorderX;
+    private BigDecimal rightBorderX;
+    private BigDecimal inaccuracy;
+    private BigDecimal step;
 
 
     public MethodsManager() {
+        methodsMap.put(0,this::getExactSolution);
         methodsMap.put(1, this::improvedEulerMethod);
         methodsMap.put(2, this::rungeKuttaOfThe4thOrderMethod);
         methodsMap.put(3, this::milnesMethod);
 
     }
 
+
     public void setDiffEquation(int n) {
-        this.diffEquation = differentialEquationsManger.getEquationsMap().get(n);
+        this.diffEquation = differentialEquationsManger.getDiffEquationsMap().get(n);
+        this.getConstant = differentialEquationsManger.getConstsMap().get(n);
     }
 
     public void setEquation(int n) {
         this.equation = differentialEquationsManger.getEquationsMap().get(n);
     }
 
-    private String improvedEulerMethod(HashMap<String, BigDecimal> args) {
-        int p=1;
-        BigDecimal yInLeftBorder = args.get(Config.yInLeftBorder.name());
-        BigDecimal leftBorderX = args.get(Config.leftBorderX.name());
-        BigDecimal rightBorderX = args.get(Config.rightBorderX.name());
-        BigDecimal inaccuracy = args.get(Config.inaccuracy.name());
-        BigDecimal step = args.get(Config.step.name());
+    public void setArgs(HashMap<String, BigDecimal> args) {
+        yInLeftBorder = args.get(Config.yInLeftBorder.name());
+        leftBorderX = args.get(Config.leftBorderX.name());
+        rightBorderX = args.get(Config.rightBorderX.name());
+        inaccuracy = args.get(Config.inaccuracy.name());
+        step = args.get(Config.step.name());
+    }
 
-        int ordinalNumberEquation = Integer.parseInt(String.valueOf(args.get(Config.diffEquation.name())));
+    private String improvedEulerMethod(Void unused){
 
-        BigDecimal constant = differentialEquationsManger.getConstsMap().get(ordinalNumberEquation).apply(new BigDecimal[]{leftBorderX, yInLeftBorder});
-
+        int p = 1;
         int k = 2;
         BigDecimal checkStep = step.divide(BigDecimal.valueOf(k), MathContext.DECIMAL32);
 
-        BigDecimal[][] datah = getEulerData(leftBorderX,rightBorderX,yInLeftBorder,step);
-        BigDecimal[][] datah2 = getEulerData(leftBorderX,rightBorderX,yInLeftBorder,checkStep);
-        while (!checkRungeCriterion(datah,datah2,p,inaccuracy)){
-            datah=datah2;
-            k*=2;
+        BigDecimal[][] datah = getEulerData(leftBorderX, rightBorderX, yInLeftBorder, step);
+
+        BigDecimal[][] datah2 = getEulerData(leftBorderX, rightBorderX, yInLeftBorder, checkStep);
+        while (!checkRungeCriterion(datah, datah2, p, inaccuracy)) {
+            datah = datah2;
+            k *= 2;
             checkStep = step.divide(BigDecimal.valueOf(k), MathContext.DECIMAL32);
-            datah2=getEulerData(leftBorderX,rightBorderX,yInLeftBorder,checkStep);
+            datah2 = getEulerData(leftBorderX, rightBorderX, yInLeftBorder, checkStep);
         }
 
 
-        System.out.println(constant + " it's c");
-        System.out.println(k + " it's step");
+        System.out.println(k + " it's step euler");
 
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
-
-        for (int i=0;i<n && i*k<n;i++){
-            System.out.println(datah[0][i*k]+" "+datah[1][i*k]);
+        k /= 2;
+        for (int i = 0; i < n && i * k < n; i++) {
+            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
         }
         return "euler";
     }
@@ -73,12 +81,12 @@ public class MethodsManager {
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
 
         BigDecimal[][] res = new BigDecimal[2][n];
-        BigDecimal yCurr=yInLeftBorder;
-        BigDecimal xCurr=leftBorderX;
+        BigDecimal yCurr = yInLeftBorder;
+        BigDecimal xCurr = leftBorderX;
         BigDecimal f;
-        for(int i=0;i<n;i++){
-            res[0][i]=xCurr;
-            res[1][i]=yCurr;
+        for (int i = 0; i < n; i++) {
+            res[0][i] = xCurr;
+            res[1][i] = yCurr;
             f = diffEquation.apply(new BigDecimal[]{xCurr, yCurr});
             xCurr = xCurr.add(step);
             yCurr = yCurr.add(
@@ -91,18 +99,99 @@ public class MethodsManager {
         return res;
     }
 
-    private String rungeKuttaOfThe4thOrderMethod(HashMap<String, BigDecimal> args) {
+    private String rungeKuttaOfThe4thOrderMethod(Void unused) {
+        int p = 4;
+
+
+        int k = 2;
+        BigDecimal checkStep = step.divide(BigDecimal.valueOf(k), MathContext.DECIMAL32);
+
+        BigDecimal[][] datah = getRungeKuttaData(leftBorderX, rightBorderX, yInLeftBorder, step);
+
+        BigDecimal[][] datah2 = getRungeKuttaData(leftBorderX, rightBorderX, yInLeftBorder, checkStep);
+        while (!checkRungeCriterion(datah, datah2, p, inaccuracy)) {
+            datah = datah2;
+            k *= 2;
+            checkStep = step.divide(BigDecimal.valueOf(k), MathContext.DECIMAL32);
+            datah2 = getRungeKuttaData(leftBorderX, rightBorderX, yInLeftBorder, checkStep);
+        }
+
+
+        System.out.println(k + " it's step runge kutta");
+
+        int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+        k /= 2;
+        for (int i = 0; i < n && i * k < n; i++) {
+            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
+        }
         return "runge-kutta";
     }
 
-    private String milnesMethod(HashMap<String, BigDecimal> args) {
+    private BigDecimal[][] getRungeKuttaData(BigDecimal leftBorderX, BigDecimal rightBorderX, BigDecimal yInLeftBorder, BigDecimal step) {
+        int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+
+        BigDecimal[][] res = new BigDecimal[2][n];
+        BigDecimal yCurr = yInLeftBorder;
+        BigDecimal xCurr = leftBorderX;
+        BigDecimal k1, k2, k3, k4;
+        for (int i = 0; i < n; i++) {
+            res[0][i] = xCurr;
+            res[1][i] = yCurr;
+
+            k1 = step.multiply(diffEquation.apply(new BigDecimal[]{xCurr, yCurr}));
+            k2 = step.multiply(diffEquation.apply(new BigDecimal[]{
+                    xCurr.add(step.divide(BigDecimal.valueOf(2), MathContext.DECIMAL32)),
+                    yCurr.add(k1.divide(BigDecimal.valueOf(2), MathContext.DECIMAL32))
+            }));
+            k3 = step.multiply(diffEquation.apply(new BigDecimal[]{
+                    xCurr.add(step.divide(BigDecimal.valueOf(2), MathContext.DECIMAL32)),
+                    yCurr.add(k2.divide(BigDecimal.valueOf(2), MathContext.DECIMAL32))
+            }));
+            k4 = step.multiply(diffEquation.apply(new BigDecimal[]{
+                    xCurr.add(step),
+                    yCurr.add(k3)
+            }));
+
+            xCurr = xCurr.add(step);
+            yCurr = yCurr.add(
+                    (k1.add(k2.multiply(BigDecimal.valueOf(2))).add(k3.multiply(BigDecimal.valueOf(2))).add(k4)).divide(BigDecimal.valueOf(6), MathContext.DECIMAL32)
+            );
+
+        }
+
+        return res;
+    }
+
+    private String milnesMethod(Void unused) {
         return "milnes";
     }
+
+    public String getExactSolution(Void unused) {
+
+        BigDecimal constant = getConstant.apply(new BigDecimal[]{leftBorderX, yInLeftBorder});
+        System.out.println(constant + " eto constanta");
+        int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+        BigDecimal[] res = new BigDecimal[n];
+        BigDecimal xCurr = leftBorderX;
+        for (int i = 0; i < n; i++) {
+            res[i] = equation.apply(new BigDecimal[]{xCurr, constant});
+            xCurr = xCurr.add(step);
+
+        }
+
+        for (BigDecimal i : res) {
+            System.out.println(i);
+        }
+        return "exact";
+
+    }
+
 
     private boolean checkRungeCriterion(BigDecimal[][] datah, BigDecimal[][] datah2, int p, BigDecimal inaccuracy) {
         int n = datah.length;
         BigDecimal r;
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n & i * 2 < n; i++) {
+            //todo почему упало
             r = (datah[1][i].subtract(datah2[1][i * 2]).abs())
                     .divide(BigDecimal.valueOf(2).pow(p).subtract(BigDecimal.ONE), MathContext.DECIMAL32);
             if (r.compareTo(inaccuracy) > 0) {
@@ -112,6 +201,6 @@ public class MethodsManager {
         return true;
     }
 
-    }
+}
 
 
