@@ -4,6 +4,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,7 +12,7 @@ import java.util.function.Function;
 
 public class MethodsManager {
 
-    public Map<Integer, Function<Void,String>> methodsMap = new HashMap<>();
+    public Map<Integer, Function<Void, String>> methodsMap = new HashMap<>();
     private final DifferentialEquationsManger differentialEquationsManger = new DifferentialEquationsManger();
     private Function<BigDecimal[], BigDecimal> diffEquation;
     private Function<BigDecimal[], BigDecimal> equation;
@@ -25,7 +26,7 @@ public class MethodsManager {
 
 
     public MethodsManager() {
-        methodsMap.put(0,this::getExactSolution);
+        methodsMap.put(0, this::getExactSolution);
         methodsMap.put(1, this::improvedEulerMethod);
         methodsMap.put(2, this::rungeKuttaOfThe4thOrderMethod);
         methodsMap.put(3, this::milnesMethod);
@@ -50,7 +51,7 @@ public class MethodsManager {
         step = args.get(Config.step.name());
     }
 
-    private String improvedEulerMethod(Void unused){
+    private String improvedEulerMethod(Void unused) {
 
         int p = 1;
         int k = 2;
@@ -163,6 +164,54 @@ public class MethodsManager {
     }
 
     private String milnesMethod(Void unused) {
+        System.out.println("it's time for milne");
+        int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+
+        BigDecimal[][] tmpRes= getRungeKuttaData(leftBorderX, leftBorderX.add(step.multiply(BigDecimal.valueOf(4))), yInLeftBorder, step);
+        BigDecimal[][]res= new BigDecimal[2][n];
+        for(int i=0;i<4;i++){
+            res[0][i]=tmpRes[0][i];
+            res[1][i]=tmpRes[1][i];
+        }
+        BigDecimal xCurr = res[0][3];
+        System.out.println(res[0].length+" "+res[1].length+" "+n);
+        BigDecimal yPred, yCorr;
+        boolean fl;
+        for (int i = 4; i < n; i++) {
+            xCurr = xCurr.add(step);
+            res[0][i] = xCurr;
+            fl = true;
+            yPred = res[1][i - 4]
+                    .add(
+                            BigDecimal.valueOf(4 / 3).multiply(step).multiply(
+                                    diffEquation.apply(new BigDecimal[]{res[0][i - 3], res[1][i - 3]}).multiply(BigDecimal.valueOf(2))
+                                            .subtract(diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]}))
+                                            .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(2))
+
+                                            )));
+            while (fl) {
+                yCorr = res[1][i - 2]
+                        .add(
+                                BigDecimal.valueOf(1 / 3).multiply(step).multiply(
+                                        diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]})
+                                                .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(4)))
+                                                .add(diffEquation.apply(new BigDecimal[]{res[0][i], yPred}))
+                                )
+
+                        );
+                if (yCorr.subtract(yPred).abs().compareTo(inaccuracy) < 0) {
+                    fl = false;
+                } else {
+                    yPred = yCorr;
+                }
+            }
+            res[1][i] = yPred;
+        }
+
+        for (int i=0;i<n;i++) {
+            System.out.println(res[0][i]+" "+res[1][i]);
+        }
+
         return "milnes";
     }
 

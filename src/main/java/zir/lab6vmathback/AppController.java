@@ -36,7 +36,7 @@ public class AppController {
         String response = "";
         final HttpHeaders httpHeaders = new HttpHeaders();
 
-        int equation = 1;
+        int equation = 2;
         solvingODEHandler.setEquation(equation);
 
         BigDecimal yInLeftBorder = BigDecimal.valueOf(-1);
