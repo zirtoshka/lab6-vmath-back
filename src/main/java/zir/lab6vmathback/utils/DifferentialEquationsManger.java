@@ -1,5 +1,7 @@
 package zir.lab6vmathback.utils;
 
+import lombok.Getter;
+
 import javax.swing.text.View;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -7,16 +9,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Getter
 public class DifferentialEquationsManger {
-    private int method;
-    private int equation;
 
-    public Map<Integer, Function<BigDecimal[], BigDecimal>> diffEquationsMap = new HashMap<>();
+
+    private Map<Integer, Function<BigDecimal[], BigDecimal>> diffEquationsMap = new HashMap<>();
 
     private Map<Integer, Function<BigDecimal[], BigDecimal>> equationsMap = new HashMap<>();
 
     private Map<Integer, Function<BigDecimal[], BigDecimal>> constsMap = new HashMap<>();
-
 
 
     public DifferentialEquationsManger() {
@@ -31,10 +32,11 @@ public class DifferentialEquationsManger {
         diffEquationsMap.put(3, this::thirdDiffEquation);
         equationsMap.put(3, this::thirdEquation);
         constsMap.put(3, this::getThirdConst);
+
+        diffEquationsMap.put(4, this::fourthDiffEquation);
+        equationsMap.put(4, this::fourthEquation);
+        constsMap.put(4, this::getFourthConst);
     }
-
-
-
 
 
     //y'=x^3+x^2
@@ -99,5 +101,30 @@ public class DifferentialEquationsManger {
         return xy[0].add(BigDecimal.valueOf(Math.sin(xy[0].doubleValue())));
     }
 
+
+    //y'=y+(1+x)y^2
+    private BigDecimal fourthDiffEquation(BigDecimal[] xy) {
+        return xy[1].add(
+                xy[0].add(BigDecimal.ONE)
+                        .multiply(xy[1].pow(2))
+        );
+    }
+
+
+    //y=-e^x / (xe^x+C)
+    private BigDecimal fourthEquation(BigDecimal[] xc) {
+        return BigDecimal.valueOf(-Math.pow(Math.E, xc[0].doubleValue())).divide(
+                xc[0].multiply(
+                        BigDecimal.valueOf(Math.pow(Math.E, xc[0].doubleValue()))
+                ).add(xc[1]), MathContext.DECIMAL32
+        );
+    }
+
+    private BigDecimal getFourthConst(BigDecimal[] xy) {
+        return
+                BigDecimal.valueOf(-Math.pow(Math.E, xy[0].doubleValue()))
+                        .multiply(BigDecimal.ONE.divide(xy[1], MathContext.DECIMAL32).add(xy[0]));
+
+    }
 
 }

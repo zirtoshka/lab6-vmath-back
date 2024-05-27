@@ -36,16 +36,17 @@ public class AppController {
         String response = "";
         final HttpHeaders httpHeaders = new HttpHeaders();
 
-        int equation = 1;
+        int equation = 4;
+        solvingODEHandler.setEquation(equation);
 
-        BigDecimal yInLeftBorder = BigDecimal.TEN;
-        BigDecimal leftBorderX = BigDecimal.ZERO;
-        BigDecimal rightBorderX = BigDecimal.ONE;
-        BigDecimal inaccuracy = BigDecimal.valueOf(0.01);
+        BigDecimal yInLeftBorder = BigDecimal.valueOf(-1);
+        BigDecimal leftBorderX = BigDecimal.ONE;
+        BigDecimal rightBorderX = BigDecimal.valueOf(10);
+        BigDecimal inaccuracy = BigDecimal.valueOf(0.1);
         BigDecimal step = BigDecimal.valueOf(0.1);
 
         for (int i = 1; i < 4; i++) {
-            System.out.println(solvingODEHandler.getSolvingByMethod(leftBorderX,rightBorderX,step,i));
+            response+=solvingODEHandler.getSolvingByMethod(leftBorderX, yInLeftBorder,rightBorderX,step, inaccuracy,i);
         }
         response += "{\"resiki\": ";
         response += "\"grafiki\": ";

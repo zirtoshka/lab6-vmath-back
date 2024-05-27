@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static zir.lab6vmathback.utils.Config.*;
+
 public class SolvingODEHandler {
-    private final DifferentialEquationsManger differentialEquationsManger = new DifferentialEquationsManger();
     private final MethodsManager methodsManager = new MethodsManager();
 
 
@@ -20,12 +21,22 @@ public class SolvingODEHandler {
     public SolvingODEHandler() {
     }
 
-    public String getSolvingByMethod(BigDecimal leftBorderX, BigDecimal rightBorderX, BigDecimal step, int method) {
-        HashMap<String, Function<BigDecimal[], BigDecimal>> argsMap = new HashMap<>();
-        argsMap.put("diffEquation", x->differentialEquationsManger.diffEquationsMap.get(equation).apply(x));
-        System.out.println(methodsManager.methodsMap.get(method).apply(argsMap));
+    public String getSolvingByMethod(BigDecimal leftBorderX, BigDecimal yInLeftBorder, BigDecimal rightBorderX, BigDecimal step, BigDecimal inaccuracy, int method) {
+        String res="";
+        HashMap<String, BigDecimal> argsMap = new HashMap<>();
+        argsMap.put(diffEquation.name(), BigDecimal.valueOf(equation));
+        argsMap.put(Config.leftBorderX.name(), leftBorderX);
+        argsMap.put(Config.yInLeftBorder.name(), yInLeftBorder);
+        argsMap.put(Config.rightBorderX.name(), rightBorderX);
+        argsMap.put(Config.step.name(), step);
+        argsMap.put(Config.inaccuracy.name(), inaccuracy);
 
-        return "fofofof";
+        methodsManager.setDiffEquation(equation);
+        methodsManager.setEquation(equation);
+
+        res+=methodsManager.methodsMap.get(method).apply(argsMap)+"\n";
+
+        return res;
     }
 
 
