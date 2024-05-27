@@ -48,9 +48,7 @@ public class AppController {
         for (int i = 0; i < 4; i++) {
             response+=solvingODEHandler.getSolvingByMethod(leftBorderX, yInLeftBorder,rightBorderX,step, inaccuracy,i);
         }
-        response += "{\"resiki\": ";
-        response += "\"grafiki\": ";
-        response += "\"finiteDiff\": ";
+        response +="}";
 
         return new ResponseEntity<>(response, httpHeaders, HttpStatus.OK);
 

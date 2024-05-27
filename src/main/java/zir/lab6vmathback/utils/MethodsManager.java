@@ -75,7 +75,17 @@ public class MethodsManager {
         for (int i = 0; i < n && i * k < n; i++) {
             System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
         }
-        return "euler";
+
+        StringBuilder resp = new StringBuilder("\"euler\": [");
+
+        for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                resp.append(datah[1][i].toString()).append("],\n");
+            } else {
+                resp.append(datah[1][i].toString()).append(",");
+            }
+        }
+        return resp.toString();
     }
 
     private BigDecimal[][] getEulerData(BigDecimal leftBorderX, BigDecimal rightBorderX, BigDecimal yInLeftBorder, BigDecimal step) {
@@ -125,7 +135,16 @@ public class MethodsManager {
         for (int i = 0; i < n && i * k < n; i++) {
             System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
         }
-        return "runge-kutta";
+        StringBuilder resp = new StringBuilder("\"runge\": [");
+
+        for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                resp.append(datah[1][i].toString()).append("],\n");
+            } else {
+                resp.append(datah[1][i].toString()).append(",");
+            }
+        }
+        return resp.toString();
     }
 
     private BigDecimal[][] getRungeKuttaData(BigDecimal leftBorderX, BigDecimal rightBorderX, BigDecimal yInLeftBorder, BigDecimal step) {
@@ -167,14 +186,14 @@ public class MethodsManager {
         System.out.println("it's time for milne");
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
 
-        BigDecimal[][] tmpRes= getRungeKuttaData(leftBorderX, leftBorderX.add(step.multiply(BigDecimal.valueOf(4))), yInLeftBorder, step);
-        BigDecimal[][]res= new BigDecimal[2][n];
-        for(int i=0;i<4;i++){
-            res[0][i]=tmpRes[0][i];
-            res[1][i]=tmpRes[1][i];
+        BigDecimal[][] tmpRes = getRungeKuttaData(leftBorderX, leftBorderX.add(step.multiply(BigDecimal.valueOf(4))), yInLeftBorder, step);
+        BigDecimal[][] res = new BigDecimal[2][n];
+        for (int i = 0; i < 4; i++) {
+            res[0][i] = tmpRes[0][i];
+            res[1][i] = tmpRes[1][i];
         }
         BigDecimal xCurr = res[0][3];
-        System.out.println(res[0].length+" "+res[1].length+" "+n);
+        System.out.println(res[0].length + " " + res[1].length + " " + n);
         BigDecimal yPred, yCorr;
         boolean fl;
         for (int i = 4; i < n; i++) {
@@ -208,30 +227,48 @@ public class MethodsManager {
             res[1][i] = yPred;
         }
 
-        for (int i=0;i<n;i++) {
-            System.out.println(res[0][i]+" "+res[1][i]);
-        }
+        StringBuilder resp = new StringBuilder("\"milne\": [");
 
-        return "milnes";
+        for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                resp.append(res[1][i].toString()).append("]");
+            } else {
+                resp.append(res[1][i].toString()).append(",");
+            }
+        }
+        return resp.toString();
     }
 
     public String getExactSolution(Void unused) {
+        StringBuilder resp = new StringBuilder("{\n\"xList\": [");
         System.out.println("exact");
         BigDecimal constant = getConstant.apply(new BigDecimal[]{leftBorderX, yInLeftBorder});
         System.out.println(constant + " eto constanta");
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
         BigDecimal[] res = new BigDecimal[n];
         BigDecimal xCurr = leftBorderX;
+
         for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                resp.append(xCurr.toString()).append("],\n");
+            } else {
+                resp.append(xCurr.toString()).append(",");
+            }
             res[i] = equation.apply(new BigDecimal[]{xCurr, constant});
             xCurr = xCurr.add(step);
 
         }
 
-        for (BigDecimal i : res) {
-            System.out.println(i);
+//        "{\"resiki\": ";
+        resp.append("\"exact\":[");
+        for (int i = 0; i < n; i++) {
+            if (i + 1 == n) {
+                resp.append(res[i].toString()).append("],\n");
+            } else {
+                resp.append(res[i].toString()).append(",");
+            }
         }
-        return "exact";
+        return resp.toString();
 
     }
 
