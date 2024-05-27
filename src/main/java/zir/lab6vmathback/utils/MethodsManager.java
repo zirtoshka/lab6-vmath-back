@@ -167,7 +167,7 @@ public class MethodsManager {
     }
 
     public String getExactSolution(Void unused) {
-
+        System.out.println("exact");
         BigDecimal constant = getConstant.apply(new BigDecimal[]{leftBorderX, yInLeftBorder});
         System.out.println(constant + " eto constanta");
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);

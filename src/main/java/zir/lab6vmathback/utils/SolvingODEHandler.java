@@ -35,7 +35,7 @@ public class SolvingODEHandler {
         methodsManager.setDiffEquation(equation);
         methodsManager.setEquation(equation);
         methodsManager.setArgs(argsMap);
-        res += methodsManager.methodsMap.get(method) + "\n";
+        res += methodsManager.methodsMap.get(method).apply(null) + "\n";
 
         return res;
     }
