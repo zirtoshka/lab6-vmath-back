@@ -105,7 +105,7 @@ public class DifferentialEquationsManger {
     //y'=y+(1+x)y^2
     private BigDecimal fourthDiffEquation(BigDecimal[] xy) {
         return xy[1].add(
-                xy[0].add(BigDecimal.ONE)
+                (xy[0].add(BigDecimal.ONE))
                         .multiply(xy[1].pow(2))
         );
     }

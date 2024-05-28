@@ -52,6 +52,7 @@ public class MethodsManager {
     }
 
     private String improvedEulerMethod(Void unused) {
+        System.out.println("euler starts");
 
         int p = 1;
         int k = 2;
@@ -78,11 +79,11 @@ public class MethodsManager {
 
         StringBuilder resp = new StringBuilder("\"euler\": [");
 
-        for (int i = 0; i < n&& i * k < n; i++) {
+        for (int i = 0; i < n && i * k < n; i++) {
             if (i + 1 == n) {
-                resp.append(datah[1][i*k].toString()).append("],\n");
+                resp.append(datah[1][i * k].toString()).append("],\n");
             } else {
-                resp.append(datah[1][i*k].toString()).append(",");
+                resp.append(datah[1][i * k].toString()).append(",");
             }
         }
         return resp.toString();
@@ -128,7 +129,6 @@ public class MethodsManager {
         }
 
 
-
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
         k /= 2;
 //        for (int i = 0; i < n && i * k < n; i++) {
@@ -138,9 +138,9 @@ public class MethodsManager {
 
         for (int i = 0; i < n && i * k < n; i++) {
             if (i + 1 == n) {
-                resp.append(datah[1][i*k].toString()).append("],\n");
+                resp.append(datah[1][i * k].toString()).append("],\n");
             } else {
-                resp.append(datah[1][i*k].toString()).append(",");
+                resp.append(datah[1][i * k].toString()).append(",");
             }
         }
         return resp.toString();
@@ -183,58 +183,70 @@ public class MethodsManager {
 
     private String milnesMethod(Void unused) {
         System.out.println("it's time for milne");
+        BigDecimal[] exactRes = getExactData();
+        boolean checkExact = true;
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
-
-        BigDecimal[][] tmpRes = getRungeKuttaData(leftBorderX, leftBorderX.add(step.multiply(BigDecimal.valueOf(4))), yInLeftBorder, step);
+        int kLupa = 1;
         BigDecimal[][] res = new BigDecimal[2][n];
-        for (int i = 0; i < 4; i++) {
-            res[0][i] = tmpRes[0][i];
-            res[1][i] = tmpRes[1][i];
-        }
-        BigDecimal xCurr = res[0][3];
-        BigDecimal yPred, yCorr;
-        boolean fl;
-        for (int i = 4; i < n; i++) {
-            xCurr = xCurr.add(step);
-            res[0][i] = xCurr;
-            fl = true;
-            yPred = res[1][i - 4]
-                    .add(
-                            BigDecimal.valueOf(4 / 3).multiply(step).multiply(
-                                    diffEquation.apply(new BigDecimal[]{res[0][i - 3], res[1][i - 3]}).multiply(BigDecimal.valueOf(2))
-                                            .subtract(diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]}))
-                                            .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(2))
+        BigDecimal checkstep = step;
 
-                                            )));
-            while (fl) {
-                yCorr = res[1][i - 2]
-                        .add(
-                                BigDecimal.valueOf(1 / 3).multiply(step).multiply(
-                                        diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]})
-                                                .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(4)))
-                                                .add(diffEquation.apply(new BigDecimal[]{res[0][i], yPred}))
-                                )
+            System.out.println("new try "+n);
 
-                        );
-                System.out.println(yCorr+ " "+yPred);
-                if (yCorr.subtract(yPred).abs().compareTo(inaccuracy) < 0) {
-                    fl = false;
-                } else {
-                    yPred = yCorr;
-                }
+            BigDecimal[][] tmpRes = getRungeKuttaData(leftBorderX, leftBorderX.add(checkstep.multiply(BigDecimal.valueOf(4))), yInLeftBorder, checkstep);
+           res = new BigDecimal[2][n];
+            for (int i = 0; i < 4; i++) {
+                System.out.println(res[0].length+ " "+res[1].length+ " "+tmpRes[0].length+ " "+tmpRes[1].length);
+                res[0][i] = tmpRes[0][i];
+                res[1][i] = tmpRes[1][i];
             }
-            res[1][i] = yPred;
+            BigDecimal xCurr = res[0][3];
+            BigDecimal yPred, yCorr;
+            boolean fl;
+            for (int i = 4; i < n; i++) {
+                xCurr = xCurr.add(step);
+                res[0][i] = xCurr;
+                fl = true;
+                yPred = res[1][i - 4]
+                        .add(
+                                BigDecimal.valueOf(1.33).multiply(step).multiply(
+                                        diffEquation.apply(new BigDecimal[]{res[0][i - 3], res[1][i - 3]}).multiply(BigDecimal.valueOf(2))
+                                                .subtract(diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]}))
+                                                .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(2))
+
+                                                )));
+                while (fl) {
+                    yCorr = res[1][i - 2]
+                            .add(
+                                    BigDecimal.valueOf(0.333).multiply(checkstep).multiply(
+                                            diffEquation.apply(new BigDecimal[]{res[0][i - 2], res[1][i - 2]})
+                                                    .add(diffEquation.apply(new BigDecimal[]{res[0][i - 1], res[1][i - 1]}).multiply(BigDecimal.valueOf(4)))
+                                                    .add(diffEquation.apply(new BigDecimal[]{res[0][i], yPred}))
+                                    )
+
+                            );
+
+                    if (yCorr.subtract(yPred).abs().compareTo(inaccuracy) < 0) {
+                        fl = false;
+                    } else {
+                        yPred = yCorr;
+                    }
+                }
+                res[1][i] = yPred;
+
         }
 
         StringBuilder resp = new StringBuilder("\"milne\": [");
-
-        for (int i = 0; i < n; i++) {
+        System.out.println(kLupa+" eto k"+ res[1].length);
+        n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+        for (int i = 0; i < n && i*kLupa<n; i++) {
+            System.out.println(res[1][i]);
             if (i + 1 == n) {
-                resp.append(res[1][i].toString()).append("]");
+                resp.append(res[1][i*kLupa].toString()).append("]");
             } else {
-                resp.append(res[1][i].toString()).append(",");
+                resp.append(res[1][i*kLupa].toString()).append(",");
             }
         }
+        System.out.println("end");
         return resp.toString();
     }
 
@@ -258,7 +270,6 @@ public class MethodsManager {
 
         }
 
-//        "{\"resiki\": ";
         resp.append("\"exact\":[");
         for (int i = 0; i < n; i++) {
             if (i + 1 == n) {
@@ -271,12 +282,26 @@ public class MethodsManager {
 
     }
 
+    private BigDecimal[] getExactData() {
+        BigDecimal constant = getConstant.apply(new BigDecimal[]{leftBorderX, yInLeftBorder});
+        int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
+        BigDecimal[] res = new BigDecimal[n];
+        BigDecimal xCurr = leftBorderX;
+
+        for (int i = 0; i < n; i++) {
+            res[i] = equation.apply(new BigDecimal[]{xCurr, constant});
+            xCurr = xCurr.add(step);
+
+        }
+
+        return res;
+    }
+
 
     private boolean checkRungeCriterion(BigDecimal[][] datah, BigDecimal[][] datah2, int p, BigDecimal inaccuracy) {
         int n = datah.length;
         BigDecimal r;
         for (int i = 0; i < n & i * 2 < n; i++) {
-            //todo почему упало
             r = (datah[1][i].subtract(datah2[1][i * 2]).abs())
                     .divide(BigDecimal.valueOf(2).pow(p).subtract(BigDecimal.ONE), MathContext.DECIMAL32);
             if (r.compareTo(inaccuracy) > 0) {
