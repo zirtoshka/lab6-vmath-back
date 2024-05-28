@@ -72,17 +72,17 @@ public class MethodsManager {
 
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
         k /= 2;
-        for (int i = 0; i < n && i * k < n; i++) {
-            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
-        }
+//        for (int i = 0; i < n && i * k < n; i++) {
+//            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
+//        }
 
         StringBuilder resp = new StringBuilder("\"euler\": [");
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n&& i * k < n; i++) {
             if (i + 1 == n) {
-                resp.append(datah[1][i].toString()).append("],\n");
+                resp.append(datah[1][i*k].toString()).append("],\n");
             } else {
-                resp.append(datah[1][i].toString()).append(",");
+                resp.append(datah[1][i*k].toString()).append(",");
             }
         }
         return resp.toString();
@@ -128,20 +128,19 @@ public class MethodsManager {
         }
 
 
-        System.out.println(k + " it's step runge kutta");
 
         int n = (int) ((rightBorderX.doubleValue() - leftBorderX.doubleValue()) / step.doubleValue() + 1);
         k /= 2;
-        for (int i = 0; i < n && i * k < n; i++) {
-            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
-        }
+//        for (int i = 0; i < n && i * k < n; i++) {
+//            System.out.println(datah[0][i * k] + " " + datah[1][i * k]);
+//        }
         StringBuilder resp = new StringBuilder("\"runge\": [");
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n && i * k < n; i++) {
             if (i + 1 == n) {
-                resp.append(datah[1][i].toString()).append("],\n");
+                resp.append(datah[1][i*k].toString()).append("],\n");
             } else {
-                resp.append(datah[1][i].toString()).append(",");
+                resp.append(datah[1][i*k].toString()).append(",");
             }
         }
         return resp.toString();
@@ -193,7 +192,6 @@ public class MethodsManager {
             res[1][i] = tmpRes[1][i];
         }
         BigDecimal xCurr = res[0][3];
-        System.out.println(res[0].length + " " + res[1].length + " " + n);
         BigDecimal yPred, yCorr;
         boolean fl;
         for (int i = 4; i < n; i++) {
@@ -218,6 +216,7 @@ public class MethodsManager {
                                 )
 
                         );
+                System.out.println(yCorr+ " "+yPred);
                 if (yCorr.subtract(yPred).abs().compareTo(inaccuracy) < 0) {
                     fl = false;
                 } else {

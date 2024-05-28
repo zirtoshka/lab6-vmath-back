@@ -36,14 +36,19 @@ public class AppController {
         String response = "";
         final HttpHeaders httpHeaders = new HttpHeaders();
 
-        int equation = 2;
+        int equation = requestODEInfo.getEquation();
         solvingODEHandler.setEquation(equation);
 
-        BigDecimal yInLeftBorder = BigDecimal.valueOf(-1);
-        BigDecimal leftBorderX = BigDecimal.ZERO;
-        BigDecimal rightBorderX = BigDecimal.valueOf(1);
-        BigDecimal inaccuracy = BigDecimal.valueOf(0.1);
-        BigDecimal step = BigDecimal.valueOf(0.1);
+        BigDecimal yInLeftBorder = new BigDecimal(requestODEInfo.getYInLeftBorder());
+        BigDecimal leftBorderX = new BigDecimal(requestODEInfo.getLeftBorderX());
+        BigDecimal rightBorderX = new BigDecimal(requestODEInfo.getRightBorderX());
+
+        if(leftBorderX.compareTo(rightBorderX)==0){
+            return new ResponseEntity<>( httpHeaders, HttpStatus.BAD_REQUEST);
+
+        }
+        BigDecimal inaccuracy = new BigDecimal(requestODEInfo.getInaccuracy());
+        BigDecimal step =new BigDecimal(requestODEInfo.getStep());
 
         for (int i = 0; i < 4; i++) {
             response+=solvingODEHandler.getSolvingByMethod(leftBorderX, yInLeftBorder,rightBorderX,step, inaccuracy,i);
@@ -51,6 +56,7 @@ public class AppController {
         response +="}";
 
         return new ResponseEntity<>(response, httpHeaders, HttpStatus.OK);
+
 
     }
 
